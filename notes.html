@@ -209,10 +209,12 @@
             flex: 1;
             display: flex;
             overflow: hidden;
+            height: 0; /* ADDED - forces flex child to respect flex: 1 height */
         }
 
         .editor-textarea {
             width: 100%;
+            height: 100%; /* ADDED */
             border: none;
             outline: none;
             padding: 1.5rem;
@@ -221,6 +223,7 @@
             line-height: 1.6;
             resize: none;
             background: #fafafa;
+            box-sizing: border-box; /* ADDED */
         }
 
         .markdown-preview {
@@ -229,6 +232,14 @@
             overflow-y: auto;
             line-height: 1.6;
             background: white;
+            height: 100%; /* ADDED */
+            box-sizing: border-box; /* ADDED */
+        }
+
+        #editorView {
+            height: 100%; /* ADDED */
+            display: flex; /* ADDED */
+            flex-direction: column; /* ADDED */
         }
 
         .markdown-preview h1 { font-size: 2rem; margin: 1rem 0 0.5rem 0; }

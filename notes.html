@@ -96,6 +96,11 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
         }
 
         .sidebar-header {
@@ -304,15 +309,19 @@
             .sidebar {
                 width: 100%;
                 position: absolute;
-                left: -100%;
+                left: 0;
                 top: 0;
                 height: 100%;
                 z-index: 100;
-                transition: left 0.3s;
+                transform: translateX(-100%);
             }
 
             .sidebar.show {
-                left: 0;
+                transform: translateX(0);
+            }
+
+            .sidebar.hidden {
+                transform: translateX(-100%);
             }
 
             .note-editor {
@@ -395,6 +404,7 @@
             currentPath: [],
             selectedNote: null,
             editorMode: 'edit',
+            sidebarVisible: true,
             folders: {
                 'root': {
                     id: 'root',
@@ -477,6 +487,17 @@
         function initApp() {
             updateSidebar();
             updateUI();
+            updateSidebarVisibility();
+        }
+
+        // Update sidebar visibility
+        function updateSidebarVisibility() {
+            const sidebar = document.getElementById('sidebar');
+            if (appData.sidebarVisible) {
+                sidebar.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('hidden');
+            }
         }
 
         // Update sidebar content
@@ -577,7 +598,11 @@
         function showEditor() {
             document.getElementById('emptyState').classList.add('hidden');
             document.getElementById('editorView').classList.remove('hidden');
-            hideSidebar(); // Hide sidebar on mobile after selecting note
+            
+            // On mobile, hide sidebar when opening a note
+            if (window.innerWidth <= 768) {
+                hideSidebar();
+            }
         }
 
         // Set editor mode
@@ -596,6 +621,7 @@
             if (mode === 'edit') {
                 editBtn.classList.add('active');
                 textarea.style.display = 'block';
+                textarea.style.width = '100%'; // Fix: Reset width to full
                 preview.classList.add('hidden');
             } else if (mode === 'preview') {
                 previewBtn.classList.add('active');
@@ -734,25 +760,30 @@
             return Date.now().toString(36) + Math.random().toString(36).substr(2);
         }
 
-        // Toggle sidebar on mobile
+        // Toggle sidebar - Fixed to work on both desktop and mobile
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('show');
+            if (window.innerWidth <= 768) {
+                // Mobile behavior
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('show');
+            } else {
+                // Desktop behavior
+                appData.sidebarVisible = !appData.sidebarVisible;
+                saveToStorage();
+                updateSidebarVisibility();
+            }
         }
 
         // Hide sidebar on mobile
         function hideSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.remove('show');
+            if (window.innerWidth <= 768) {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.remove('show');
+            }
         }
 
         // Update UI based on screen size
         function updateUI() {
-            // Hide sidebar on mobile by default
-            if (window.innerWidth <= 768) {
-                hideSidebar();
-            }
-            
             // Restore editor mode
             if (appData.editorMode) {
                 setEditorMode(appData.editorMode);

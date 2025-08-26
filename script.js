@@ -24,7 +24,7 @@ const defaultData = {
             name: 'Work',
             parent: 'root',
             folders: [],
-            notes: ['meetings', 'tasks']
+            notes: ['tasks']
         }
     },
     notes: {
@@ -39,12 +39,6 @@ const defaultData = {
             name: 'Ideas',
             content: '# Ideas 💡\n\n- Build a note-taking app ✅\n- Learn a new programming language\n- Start a blog\n- Create a personal website\n- Write more documentation',
             folder: 'personal'
-        },
-        'meetings': {
-            id: 'meetings',
-            name: 'Meeting Notes',
-            content: '# Meeting Notes 📋\n\n## Weekly Standup - Jan 15\n- Discussed project progress\n- Planned next sprint\n- Resolved blockers\n\n## Action Items\n- [ ] Update documentation\n- [ ] Review pull requests\n- [ ] Schedule follow-up meeting',
-            folder: 'work'
         },
         'tasks': {
             id: 'tasks',

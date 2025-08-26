@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Notes App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            color: #212529;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #495057;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545862;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .breadcrumb {
+            font-size: 0.875rem;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .folder-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .folder-item, .note-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            margin: 0.25rem 0;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .folder-item:hover, .note-item:hover {
+            background: #f8f9fa;
+        }
+
+        .folder-item.selected, .note-item.selected {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+        }
+
+        .folder-icon, .note-icon {
+            font-size: 1.25rem;
+        }
+
+        .folder-icon {
+            color: #ffc107;
+        }
+
+        .note-icon {
+            color: #6c757d;
+        }
+
+        .item-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .note-editor {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            overflow: hidden;
+        }
+
+        .editor-header {
+            padding: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .editor-modes {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #dee2e6;
+            background: white;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .editor-textarea {
+            width: 100%;
+            border: none;
+            outline: none;
+            padding: 1.5rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            resize: none;
+            background: #fafafa;
+        }
+
+        .markdown-preview {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            line-height: 1.6;
+            background: white;
+        }
+
+        .markdown-preview h1 { font-size: 2rem; margin: 1rem 0 0.5rem 0; }
+        .markdown-preview h2 { font-size: 1.5rem; margin: 1rem 0 0.5rem 0; }
+        .markdown-preview h3 { font-size: 1.25rem; margin: 1rem 0 0.5rem 0; }
+        .markdown-preview p { margin: 0.5rem 0; }
+        .markdown-preview ul, .markdown-preview ol { margin: 0.5rem 0; padding-left: 2rem; }
+        .markdown-preview li { margin: 0.25rem 0; }
+        .markdown-preview code { background: #f8f9fa; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-family: monospace; }
+        .markdown-preview pre { background: #f8f9fa; padding: 1rem; border-radius: 0.375rem; overflow-x: auto; margin: 0.5rem 0; }
+        .markdown-preview blockquote { border-left: 4px solid #dee2e6; padding-left: 1rem; margin: 0.5rem 0; color: #6c757d; }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            min-width: 300px;
+        }
+
+        .modal-header {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+            font-size: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: absolute;
+                left: -100%;
+                top: 0;
+                height: 100%;
+                z-index: 100;
+                transition: left 0.3s;
+            }
+
+            .sidebar.show {
+                left: 0;
+            }
+
+            .note-editor {
+                width: 100%;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>📝 My Notes</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="toggleSidebar()" id="toggleSidebarBtn">☰ Browse</button>
+                <button class="btn btn-primary" onclick="showCreateModal('folder')" id="createFolderBtn">📁 New Folder</button>
+                <button class="btn btn-primary" onclick="showCreateModal('note')" id="createNoteBtn">📄 New Note</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="breadcrumb" id="breadcrumb">
+                        📁 All Notes
+                    </div>
+                    <button class="btn btn-secondary" onclick="goToParentFolder()" id="backBtn" style="display: none;">↰ Back</button>
+                </div>
+                <div class="folder-content" id="folderContent">
+                    <!-- Dynamic content -->
+                </div>
+            </aside>
+
+            <main class="note-editor" id="noteEditor">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">📝</div>
+                    <h2>Select a note to start editing</h2>
+                    <p>Choose a note from the sidebar or create a new one</p>
+                </div>
+
+                <div class="hidden" id="editorView">
+                    <div class="editor-header">
+                        <div class="editor-title" id="editorTitle">Untitled Note</div>
+                        <div class="editor-modes">
+                            <button class="mode-btn active" onclick="setEditorMode('edit')" id="editModeBtn">✏️ Edit</button>
+                            <button class="mode-btn" onclick="setEditorMode('preview')" id="previewModeBtn">👁️ Preview</button>
+                            <button class="mode-btn" onclick="setEditorMode('split')" id="splitModeBtn">⚌ Split</button>
+                        </div>
+                    </div>
+                    <div class="editor-content" id="editorContent">
+                        <textarea class="editor-textarea" id="noteTextarea" placeholder="Start writing your note..."></textarea>
+                        <div class="markdown-preview hidden" id="markdownPreview"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal for creating folders/notes -->
+    <div class="modal hidden" id="createModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">Create New Item</div>
+            <div class="modal-body">
+                <input type="text" class="modal-input" id="modalInput" placeholder="Enter name...">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideCreateModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createItem()" id="createBtn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Default data structure
+        const defaultData = {
+            currentPath: [],
+            selectedNote: null,
+            editorMode: 'edit',
+            folders: {
+                'root': {
+                    id: 'root',
+                    name: 'All Notes',
+                    parent: null,
+                    folders: ['personal', 'work'],
+                    notes: ['welcome']
+                },
+                'personal': {
+                    id: 'personal',
+                    name: 'Personal',
+                    parent: 'root',
+                    folders: ['projects'],
+                    notes: ['ideas', 'journal']
+                },
+                'work': {
+                    id: 'work',
+                    name: 'Work',
+                    parent: 'root',
+                    folders: [],
+                    notes: ['meetings', 'tasks']
+                },
+                'projects': {
+                    id: 'projects',
+                    name: 'Projects',
+                    parent: 'personal',
+                    folders: [],
+                    notes: ['webapp']
+                }
+            },
+            notes: {
+                'welcome': {
+                    id: 'welcome',
+                    name: 'Welcome to My Notes',
+                    content: '# Welcome to My Notes App! 🎉\n\nThis is your personal note-taking app that works across all your devices.\n\n## Features\n- 📁 **Folders**: Organize your notes\n- ✏️ **Rich editing**: Write in plain text or markdown\n- 👁️ **Preview mode**: See your formatted notes\n- 📱 **Responsive**: Works on mobile and desktop\n\n## Getting Started\n1. Create folders to organize your notes\n2. Add notes to your folders\n3. Switch between edit and preview modes\n\n**Pro tip**: Use markdown syntax like `# headings`, `**bold text**`, and `- bullet points` for rich formatting!\n\n---\n\n*Happy note-taking!* ✨',
+                    folder: 'root'
+                },
+                'ideas': {
+                    id: 'ideas',
+                    name: 'Ideas',
+                    content: '# Ideas 💡\n\n- Build a note-taking app ✅\n- Learn a new programming language\n- Start a blog\n- Create a personal website\n- Write more documentation',
+                    folder: 'personal'
+                },
+                'journal': {
+                    id: 'journal',
+                    name: 'Daily Journal',
+                    content: '# Daily Journal 📔\n\n## Today\nWorked on the note-taking app. It\'s coming together nicely!\n\n## Tomorrow\n- Add more features\n- Test on different devices\n- Share with friends',
+                    folder: 'personal'
+                },
+                'meetings': {
+                    id: 'meetings',
+                    name: 'Meeting Notes',
+                    content: '# Meeting Notes 📋\n\n## Weekly Standup - Jan 15\n- Discussed project progress\n- Planned next sprint\n- Resolved blockers\n\n## Action Items\n- [ ] Update documentation\n- [ ] Review pull requests\n- [ ] Schedule follow-up meeting',
+                    folder: 'work'
+                },
+                'tasks': {
+                    id: 'tasks',
+                    name: 'Tasks',
+                    content: '# Tasks ✅\n\n## High Priority\n- [ ] Fix critical bug\n- [ ] Deploy new feature\n- [ ] Update user documentation\n\n## Medium Priority\n- [ ] Code review\n- [ ] Team meeting prep\n- [ ] Update project timeline\n\n## Low Priority\n- [ ] Organize files\n- [ ] Clean up old branches',
+                    folder: 'work'
+                },
+                'webapp': {
+                    id: 'webapp',
+                    name: 'Web App Ideas',
+                    content: '# Web App Ideas 🚀\n\n## Note-Taking App\n- Single HTML file\n- Works offline\n- Multi-device support\n- Markdown support\n- Simple and clean UI\n\n## Features to Add\n- [ ] Export notes\n- [ ] Search functionality\n- [ ] Tags system\n- [ ] Dark mode\n- [ ] Sync between devices',
+                    folder: 'projects'
+                }
+            }
+        };
+
+        // Load data from localStorage or use defaults
+        let appData = JSON.parse(localStorage.getItem('notesApp')) || defaultData;
+
+        // Save data to localStorage
+        function saveToStorage() {
+            localStorage.setItem('notesApp', JSON.stringify(appData));
+        }
+
+        // Initialize app
+        function initApp() {
+            updateSidebar();
+            updateUI();
+        }
+
+        // Update sidebar content
+        function updateSidebar() {
+            const currentFolderId = appData.currentPath.length > 0 ? appData.currentPath[appData.currentPath.length - 1] : 'root';
+            const currentFolder = appData.folders[currentFolderId];
+            const folderContent = document.getElementById('folderContent');
+            
+            if (!currentFolder) return;
+
+            let html = '';
+
+            // Add folders
+            if (currentFolder.folders) {
+                currentFolder.folders.forEach(folderId => {
+                    const folder = appData.folders[folderId];
+                    if (folder) {
+                        html += `
+                            <div class="folder-item" onclick="openFolder('${folderId}')">
+                                <span class="folder-icon">📁</span>
+                                <span class="item-name">${folder.name}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            // Add notes
+            if (currentFolder.notes) {
+                currentFolder.notes.forEach(noteId => {
+                    const note = appData.notes[noteId];
+                    if (note) {
+                        const isSelected = appData.selectedNote === noteId ? 'selected' : '';
+                        html += `
+                            <div class="note-item ${isSelected}" onclick="openNote('${noteId}')">
+                                <span class="note-icon">📄</span>
+                                <span class="item-name">${note.name}</span>
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            if (html === '') {
+                html = '<div style="text-align: center; padding: 2rem; color: #6c757d;">This folder is empty</div>';
+            }
+
+            folderContent.innerHTML = html;
+            updateBreadcrumb();
+        }
+
+        // Update breadcrumb
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const backBtn = document.getElementById('backBtn');
+            
+            if (appData.currentPath.length === 0) {
+                breadcrumb.textContent = '📁 All Notes';
+                backBtn.style.display = 'none';
+            } else {
+                const currentFolderId = appData.currentPath[appData.currentPath.length - 1];
+                const currentFolder = appData.folders[currentFolderId];
+                breadcrumb.textContent = `📁 ${currentFolder.name}`;
+                backBtn.style.display = 'block';
+            }
+        }
+
+        // Open folder
+        function openFolder(folderId) {
+            appData.currentPath.push(folderId);
+            saveToStorage();
+            updateSidebar();
+        }
+
+        // Go to parent folder
+        function goToParentFolder() {
+            appData.currentPath.pop();
+            saveToStorage();
+            updateSidebar();
+        }
+
+        // Open note
+        function openNote(noteId) {
+            appData.selectedNote = noteId;
+            saveToStorage();
+            const note = appData.notes[noteId];
+            
+            if (note) {
+                document.getElementById('editorTitle').textContent = note.name;
+                document.getElementById('noteTextarea').value = note.content;
+                updateMarkdownPreview();
+                showEditor();
+                updateSidebar(); // Refresh to show selected state
+            }
+        }
+
+        // Show editor
+        function showEditor() {
+            document.getElementById('emptyState').classList.add('hidden');
+            document.getElementById('editorView').classList.remove('hidden');
+            hideSidebar(); // Hide sidebar on mobile after selecting note
+        }
+
+        // Set editor mode
+        function setEditorMode(mode) {
+            appData.editorMode = mode;
+            saveToStorage();
+            const editBtn = document.getElementById('editModeBtn');
+            const previewBtn = document.getElementById('previewModeBtn');
+            const splitBtn = document.getElementById('splitModeBtn');
+            const textarea = document.getElementById('noteTextarea');
+            const preview = document.getElementById('markdownPreview');
+
+            // Reset button states
+            [editBtn, previewBtn, splitBtn].forEach(btn => btn.classList.remove('active'));
+
+            if (mode === 'edit') {
+                editBtn.classList.add('active');
+                textarea.style.display = 'block';
+                preview.classList.add('hidden');
+            } else if (mode === 'preview') {
+                previewBtn.classList.add('active');
+                textarea.style.display = 'none';
+                preview.classList.remove('hidden');
+                updateMarkdownPreview();
+            } else if (mode === 'split') {
+                splitBtn.classList.add('active');
+                textarea.style.display = 'block';
+                textarea.style.width = '50%';
+                preview.classList.remove('hidden');
+                updateMarkdownPreview();
+            }
+        }
+
+        // Simple markdown parser
+        function parseMarkdown(text) {
+            return text
+                // Headers
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                // Bold
+                .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+                // Italic
+                .replace(/\*(.*)\*/gim, '<em>$1</em>')
+                // Inline code
+                .replace(/`([^`]*)`/gim, '<code>$1</code>')
+                // Code blocks
+                .replace(/```([^```]*)```/gim, '<pre><code>$1</code></pre>')
+                // Links
+                .replace(/\[([^\]]*)\]\(([^)]*)\)/gim, '<a href="$2" target="_blank">$1</a>')
+                // Blockquotes
+                .replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>')
+                // Unordered lists
+                .replace(/^\- (.*$)/gim, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>')
+                // Checkboxes
+                .replace(/\- \[ \] (.*$)/gim, '<li>☐ $1</li>')
+                .replace(/\- \[x\] (.*$)/gim, '<li>☑ $1</li>')
+                // Line breaks
+                .replace(/\n/gim, '<br>')
+                // Paragraphs
+                .replace(/(<br>\s*<br>)/gim, '</p><p>')
+                .replace(/^(.*)/, '<p>$1')
+                .replace(/(.*)$/, '$1</p>')
+                // Clean up
+                .replace(/<p><\/p>/gim, '')
+                .replace(/<p>(<h[1-6]>)/gim, '$1')
+                .replace(/(<\/h[1-6]>)<\/p>/gim, '$1')
+                .replace(/<p>(<ul>)/gim, '$1')
+                .replace(/(<\/ul>)<\/p>/gim, '$1')
+                .replace(/<p>(<blockquote>)/gim, '$1')
+                .replace(/(<\/blockquote>)<\/p>/gim, '$1');
+        }
+
+        // Update markdown preview
+        function updateMarkdownPreview() {
+            const textarea = document.getElementById('noteTextarea');
+            const preview = document.getElementById('markdownPreview');
+            const html = parseMarkdown(textarea.value);
+            preview.innerHTML = html;
+        }
+
+        // Save note content
+        function saveNoteContent() {
+            if (appData.selectedNote) {
+                const content = document.getElementById('noteTextarea').value;
+                appData.notes[appData.selectedNote].content = content;
+                saveToStorage();
+            }
+        }
+
+        // Show create modal
+        function showCreateModal(type) {
+            const modal = document.getElementById('createModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalInput = document.getElementById('modalInput');
+            
+            modalTitle.textContent = type === 'folder' ? 'Create New Folder' : 'Create New Note';
+            modalInput.placeholder = type === 'folder' ? 'Folder name...' : 'Note name...';
+            modalInput.value = '';
+            modal.dataset.type = type;
+            
+            modal.classList.remove('hidden');
+            modalInput.focus();
+        }
+
+        // Hide create modal
+        function hideCreateModal() {
+            document.getElementById('createModal').classList.add('hidden');
+        }
+
+        // Create new item
+        function createItem() {
+            const modal = document.getElementById('createModal');
+            const modalInput = document.getElementById('modalInput');
+            const type = modal.dataset.type;
+            const name = modalInput.value.trim();
+
+            if (!name) return;
+
+            const currentFolderId = appData.currentPath.length > 0 ? appData.currentPath[appData.currentPath.length - 1] : 'root';
+            const id = generateId();
+
+            if (type === 'folder') {
+                appData.folders[id] = {
+                    id: id,
+                    name: name,
+                    parent: currentFolderId,
+                    folders: [],
+                    notes: []
+                };
+                appData.folders[currentFolderId].folders.push(id);
+            } else {
+                appData.notes[id] = {
+                    id: id,
+                    name: name,
+                    content: `# ${name}\n\nStart writing your note here...`,
+                    folder: currentFolderId
+                };
+                appData.folders[currentFolderId].notes.push(id);
+            }
+
+            saveToStorage();
+            updateSidebar();
+            hideCreateModal();
+            
+            if (type === 'note') {
+                openNote(id);
+            }
+        }
+
+        // Generate unique ID
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // Toggle sidebar on mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('show');
+        }
+
+        // Hide sidebar on mobile
+        function hideSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('show');
+        }
+
+        // Update UI based on screen size
+        function updateUI() {
+            // Hide sidebar on mobile by default
+            if (window.innerWidth <= 768) {
+                hideSidebar();
+            }
+            
+            // Restore editor mode
+            if (appData.editorMode) {
+                setEditorMode(appData.editorMode);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('noteTextarea').addEventListener('input', function() {
+            saveNoteContent();
+            if (appData.editorMode === 'split') {
+                updateMarkdownPreview();
+            }
+        });
+
+        document.getElementById('modalInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                createItem();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideCreateModal();
+            }
+        });
+
+        window.addEventListener('resize', updateUI);
+
+        // Initialize the app
+        initApp();
+    </script>
+</body>
+</html>

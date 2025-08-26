@@ -52,6 +52,10 @@ const defaultData = {
 // Load data from localStorage or use defaults
 let appData = JSON.parse(localStorage.getItem('notesApp')) || defaultData;
 
+// Variables for delete confirmation
+let deleteAction = null;
+let deleteTarget = null;
+
 // Save data to localStorage
 function saveToStorage() {
     localStorage.setItem('notesApp', JSON.stringify(appData));
@@ -89,10 +93,12 @@ function updateSidebar() {
         currentFolder.folders.forEach(folderId => {
             const folder = appData.folders[folderId];
             if (folder) {
+                const canDelete = folder.id !== 'root'; // Can't delete root folder
                 html += `
                     <div class="folder-item" onclick="openFolder('${folderId}')">
                         <span class="folder-icon">📁</span>
                         <span class="item-name">${folder.name}</span>
+                        ${canDelete ? `<button class="delete-folder-btn" onclick="event.stopPropagation(); showDeleteFolderConfirm('${folderId}')" title="Delete Folder">🗑️</button>` : ''}
                     </div>
                 `;
             }
@@ -329,6 +335,132 @@ function createItem() {
     }
 }
 
+// DELETE FUNCTIONS - NEW FUNCTIONALITY
+
+// Delete current note
+function deleteCurrentNote() {
+    if (!appData.selectedNote) return;
+    
+    const note = appData.notes[appData.selectedNote];
+    if (!note) return;
+    
+    showDeleteConfirm('note', appData.selectedNote, `Are you sure you want to delete the note "${note.name}"?`);
+}
+
+// Show delete folder confirmation
+function showDeleteFolderConfirm(folderId) {
+    const folder = appData.folders[folderId];
+    if (!folder) return;
+    
+    const hasContent = folder.folders.length > 0 || folder.notes.length > 0;
+    const message = hasContent 
+        ? `Are you sure you want to delete the folder "${folder.name}" and all its contents?`
+        : `Are you sure you want to delete the folder "${folder.name}"?`;
+    
+    showDeleteConfirm('folder', folderId, message);
+}
+
+// Show delete confirmation modal
+function showDeleteConfirm(type, id, message) {
+    deleteAction = type;
+    deleteTarget = id;
+    
+    const modal = document.getElementById('confirmModal');
+    const messageEl = document.getElementById('confirmMessage');
+    
+    messageEl.textContent = message;
+    modal.classList.remove('hidden');
+}
+
+// Hide confirmation modal
+function hideConfirmModal() {
+    document.getElementById('confirmModal').classList.add('hidden');
+    deleteAction = null;
+    deleteTarget = null;
+}
+
+// Confirm delete action
+function confirmDelete() {
+    if (deleteAction === 'note') {
+        deleteNote(deleteTarget);
+    } else if (deleteAction === 'folder') {
+        deleteFolder(deleteTarget);
+    }
+    
+    hideConfirmModal();
+}
+
+// Delete note function
+function deleteNote(noteId) {
+    const note = appData.notes[noteId];
+    if (!note) return;
+    
+    // Remove note from its folder
+    const folder = appData.folders[note.folder];
+    if (folder) {
+        folder.notes = folder.notes.filter(id => id !== noteId);
+    }
+    
+    // Delete the note
+    delete appData.notes[noteId];
+    
+    // If this was the selected note, clear the selection
+    if (appData.selectedNote === noteId) {
+        appData.selectedNote = null;
+        document.getElementById('emptyState').classList.remove('hidden');
+        document.getElementById('editorView').classList.add('hidden');
+    }
+    
+    saveToStorage();
+    updateSidebar();
+}
+
+// Delete folder function (recursive)
+function deleteFolder(folderId) {
+    const folder = appData.folders[folderId];
+    if (!folder || folderId === 'root') return; // Can't delete root folder
+    
+    // Delete all notes in this folder
+    if (folder.notes) {
+        folder.notes.forEach(noteId => {
+            delete appData.notes[noteId];
+            // If the deleted note was selected, clear selection
+            if (appData.selectedNote === noteId) {
+                appData.selectedNote = null;
+                document.getElementById('emptyState').classList.remove('hidden');
+                document.getElementById('editorView').classList.add('hidden');
+            }
+        });
+    }
+    
+    // Delete all subfolders recursively
+    if (folder.folders) {
+        folder.folders.forEach(subFolderId => {
+            deleteFolder(subFolderId);
+        });
+    }
+    
+    // Remove folder from its parent
+    const parentFolder = appData.folders[folder.parent];
+    if (parentFolder) {
+        parentFolder.folders = parentFolder.folders.filter(id => id !== folderId);
+    }
+    
+    // If we're currently in this folder or a subfolder, go back to parent
+    const folderIndex = appData.currentPath.indexOf(folderId);
+    if (folderIndex !== -1) {
+        appData.currentPath = appData.currentPath.slice(0, folderIndex);
+    }
+    
+    // Delete the folder
+    delete appData.folders[folderId];
+    
+    saveToStorage();
+    updateSidebar();
+}
+
+// END DELETE FUNCTIONS
+
 // Generate unique ID
 function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -382,6 +514,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             hideCreateModal();
+            hideConfirmModal();
         }
     });
 

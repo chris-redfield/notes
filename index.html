@@ -44,6 +44,7 @@
                             <button class="mode-btn active" onclick="setEditorMode('edit')" id="editModeBtn">✏️ Edit</button>
                             <button class="mode-btn" onclick="setEditorMode('preview')" id="previewModeBtn">👁️ Preview</button>
                             <button class="mode-btn" onclick="setEditorMode('split')" id="splitModeBtn">⚌ Split</button>
+                            <button class="btn btn-danger delete-note-btn" onclick="deleteCurrentNote()" id="deleteNoteBtn" title="Delete Note">🗑️</button>
                         </div>
                     </div>
                     <div class="editor-content" id="editorContent">
@@ -65,6 +66,20 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" onclick="hideCreateModal()">Cancel</button>
                 <button class="btn btn-primary" onclick="createItem()" id="createBtn">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation modal -->
+    <div class="modal hidden" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-header" id="confirmTitle">Confirm Delete</div>
+            <div class="modal-body">
+                <p id="confirmMessage">Are you sure you want to delete this item?</p>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="hideConfirmModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDelete()" id="confirmBtn">Delete</button>
             </div>
         </div>
     </div>

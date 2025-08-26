@@ -308,6 +308,36 @@ body {
     display: none !important;
 }
 
+/* Delete buttons - NEW STYLES */
+.delete-note-btn {
+    margin-left: 0.5rem;
+    padding: 0.5rem;
+    font-size: 1rem;
+    border-radius: 0.375rem;
+}
+
+.delete-folder-btn {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+    opacity: 0.6;
+    transition: all 0.2s;
+    margin-left: auto;
+    color: #dc3545;
+}
+
+.delete-folder-btn:hover {
+    opacity: 1;
+    background: #f8d7da;
+}
+
+.folder-item:hover .delete-folder-btn {
+    opacity: 1;
+}
+
 /* Mobile responsiveness */
 @media (max-width: 768px) {
     .sidebar {
@@ -335,5 +365,17 @@ body {
     .header-actions {
         flex-direction: column;
         gap: 0.25rem;
+    }
+
+    .editor-modes {
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .delete-note-btn {
+        margin-left: 0;
+        margin-top: 0.25rem;
+        padding: 0.375rem;
+        font-size: 0.875rem;
     }
 }

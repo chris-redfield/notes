@@ -16,8 +16,8 @@ const defaultData = {
             id: 'personal',
             name: 'Personal',
             parent: 'root',
-            folders: ['projects'],
-            notes: ['ideas', 'journal']
+            folders: [],
+            notes: ['ideas']
         },
         'work': {
             id: 'work',
@@ -38,12 +38,6 @@ const defaultData = {
             id: 'ideas',
             name: 'Ideas',
             content: '# Ideas 💡\n\n- Build a note-taking app ✅\n- Learn a new programming language\n- Start a blog\n- Create a personal website\n- Write more documentation',
-            folder: 'personal'
-        },
-        'journal': {
-            id: 'journal',
-            name: 'Daily Journal',
-            content: '# Daily Journal 📔\n\n## Today\nWorked on the note-taking app. It\'s coming together nicely!\n\n## Tomorrow\n- Add more features\n- Test on different devices\n- Share with friends',
             folder: 'personal'
         },
         'meetings': {

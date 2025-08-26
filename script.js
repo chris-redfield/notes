@@ -25,13 +25,6 @@ const defaultData = {
             parent: 'root',
             folders: [],
             notes: ['meetings', 'tasks']
-        },
-        'projects': {
-            id: 'projects',
-            name: 'Projects',
-            parent: 'personal',
-            folders: [],
-            notes: ['webapp']
         }
     },
     notes: {
@@ -64,12 +57,6 @@ const defaultData = {
             name: 'Tasks',
             content: '# Tasks ✅\n\n## High Priority\n- [ ] Fix critical bug\n- [ ] Deploy new feature\n- [ ] Update user documentation\n\n## Medium Priority\n- [ ] Code review\n- [ ] Team meeting prep\n- [ ] Update project timeline\n\n## Low Priority\n- [ ] Organize files\n- [ ] Clean up old branches',
             folder: 'work'
-        },
-        'webapp': {
-            id: 'webapp',
-            name: 'Web App Ideas',
-            content: '# Web App Ideas 🚀\n\n## Note-Taking App\n- Single HTML file\n- Works offline\n- Multi-device support\n- Markdown support\n- Simple and clean UI\n\n## Features to Add\n- [ ] Export notes\n- [ ] Search functionality\n- [ ] Tags system\n- [ ] Dark mode\n- [ ] Sync between devices',
-            folder: 'projects'
         }
     }
 };
